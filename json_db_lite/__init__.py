@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 
 class JSONDatabase:
@@ -34,22 +34,21 @@ class JSONDatabase:
         with open(self.file_path, 'r') as f:
             return json.load(f)
 
-    def initialize_from_list(self, data_list: List[Dict[str, Any]]) -> None:
-        """
-        Инициализирует базу данных из списка словарей и сохраняет его в JSON файл.
-
-        :param data_list: Список словарей для инициализации.
-        """
-        self.save_to_file(data_list)
-
-    def add_records(self, new_data: List[Dict[str, Any]]) -> None:
+    def add_records(self, new_data: Union[List[Dict[str, Any]], Dict[str, Any]]) -> None:
         """
         Добавляет новые записи в существующий JSON файл.
 
-        :param new_data: Список новых записей для добавления.
+        :param new_data: Список новых записей для добавления или один новый словарь.
         """
         data = self.read_from_file()
-        data.extend(new_data)
+
+        if isinstance(new_data, dict):
+            data.append(new_data)
+        elif isinstance(new_data, list):
+            data.extend(new_data)
+        else:
+            raise TypeError("new_data must be either a dictionary or a list of dictionaries.")
+
         self.save_to_file(data)
 
     def get_all_records(self) -> List[Dict[str, Any]]:
@@ -77,19 +76,24 @@ class JSONDatabase:
         data = [record for record in data if record.get(key) != value]
         self.save_to_file(data)
 
-    def update_record_by_key(self, key: str, value: Any, new_record: Dict[str, Any]) -> None:
+    def update_record_by_key(self, upd_filter: Dict[str, Any],
+                             new_data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> None:
         """
-        Обновляет запись по ключу и значению.
+        Обновляет записи в JSON по фильтру и новым данным.
 
-        :param key: Ключ для поиска записи.
-        :param value: Значение для поиска записи.
-        :param new_record: Новый словарь для замены старого.
+        :param upd_filter: Словарь с ключами и значениями для отбора записей.
+        :param new_data: Новый словарь или список словарей с ключами и значениями для обновления или добавления.
         """
         data = self.read_from_file()
-        for index, record in enumerate(data):
-            if record.get(key) == value:
-                data[index] = new_record
-                break
+
+        filtered_records = [record for record in data if
+                            all(record.get(key) == value for key, value in upd_filter.items())]
+
+        for record in filtered_records:
+            for update in new_data if isinstance(new_data, list) else [new_data]:
+                for new_key, new_value in update.items():
+                    record[new_key] = new_value
+
         self.save_to_file(data)
 
     def find_records_by_key(self, key: str, value: Any) -> List[Dict[str, Any]]:

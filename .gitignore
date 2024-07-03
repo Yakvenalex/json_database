@@ -22,3 +22,6 @@ config.py
 dist/
 json_db_lite.egg-info/
 build/
+
+main.py
+small_db.json
