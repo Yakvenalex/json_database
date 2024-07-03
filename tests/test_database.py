@@ -1,28 +1,42 @@
 from json_db_lite import JSONDatabase
 
-# Инициализация базы данных
-db = JSONDatabase('db.json')
+db_client = JSONDatabase('small_db.json')
 
 
-# Добавление новых записей
-new_data = [
-    {"id": 1, "name": "Alice"},
-    {"id": 2, "name": "Bob"},
-    {"id": 3, "name": "Charlie"},
-    {"id": 4, "name": "David"}
-]
-db.add_records(new_data)
+def add_data_to_db():
+    # массовое добавление
+    db_client.add_records([{"id": 1, "name": "Sara"},
+                           {"id": 2, "name": "Mark"},
+                           {"id": 3, "name": "Charlie"},
+                           {"id": 4, "name": "David"}
+                           ])
+    # добавление одной записи
+    db_client.add_records({"id": 5, "name": "Alex"})
 
-# Получение всех записей
-print(db.get_all_records())
 
-# Обновление записи по ключу
-db.update_record_by_key(upd_filter={'name': 'David'},
-                        new_data=[{"age": 23}, {'job': 'progger'}]
-                        )
+def get_all_data():
+    # возвращаем все данные
+    return db_client.get_all_records()
 
-# Удаление записи по ключу
-db.delete_record_by_key("id", 1)
 
-# Очистка базы данных
-db.clear_database()
+def get_data(key='id', value=4):
+    # возвращаем данные по ключу
+    return db_client.find_records_by_key(key, value)
+
+
+def update_data():
+    # обновляем данные по ключу у одного словаря
+    db_client.update_record_by_key(upd_filter={"id": 4}, new_data=[{"name": "Alex"}, {"age": 31}])
+
+    # обновляем данные по ключу у одного словаря
+    db_client.update_record_by_key(upd_filter={"name": "Alex"},
+                                   new_data=[{"age": 40}, {"job": "python developer"}])
+
+
+def dell_data():
+    # удаляем данные по ключу
+    db_client.delete_record_by_key(key="name", value="Alex")
+
+
+def dell_all_data():
+    db_client.clear_database()
