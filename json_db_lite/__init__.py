@@ -13,7 +13,7 @@ class JSONDatabase:
         """
         self.file_path = file_path
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump([], f)
 
     def save_to_file(self, data: List[Dict[str, Any]]) -> None:
@@ -22,7 +22,7 @@ class JSONDatabase:
 
         :param data: Список словарей для сохранения.
         """
-        with open(self.file_path, 'w') as f:
+        with open(self.file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
 
     def read_from_file(self) -> List[Dict[str, Any]]:
@@ -31,7 +31,7 @@ class JSONDatabase:
 
         :return: Список словарей, считанных из файла.
         """
-        with open(self.file_path, 'r') as f:
+        with open(self.file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
     def add_records(self, new_data: Union[List[Dict[str, Any]], Dict[str, Any]]) -> None:
